@@ -1,0 +1,36 @@
+{% include 'header.html' %}
+{% include 'navbar.html' %}
+<style>
+    .container {
+        margin-top: 1em;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+</style>
+<div class="container" style="width: 100%; margin: 1em auto; text-align: center;">
+    <h1>Welcome to Shorty!</h1>
+    <p>Choose your preferred link shortening provider</p>
+</div>
+
+<div class="container">
+    <form action="/shortlinks" method="POST">
+
+        <div class="mb-3">
+            <label for="url" class="form-label">URL to shorten</label><br>
+            <input type="text" class="form-control" id="url" name="url" required>
+        </div>
+        <div class="mb-3">
+            <label for="provider" class="form-label">Provider</label><br>
+            <input type="radio" name="provider" value="no preference" checked> I don't mind! <br />
+            <input type="radio" name="provider" value="bitly" > Bitly <br />
+            <input type="radio" name="provider" value="tinyurl"> TinyURL <br /><br />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Shorten</button>
+    </form>
+    {% if invalid %}
+        <p style="margin-top: 0.5em; color: #eb4823">{{ error_message }}</p>
+    {% endif %}
+</div>
+{% include 'footer.html' %}
