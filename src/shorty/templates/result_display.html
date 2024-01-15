@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your URL results</title>
+</head>
+{% include 'header.html' %}
+{% include 'navbar.html' %}
+<style>
+    .url-container {
+        width: 80%;
+        margin: 1em auto;
+        text-align: center;
+        padding: 20px;
+        background-color: #f5f5f5;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+        color: #333;
+    }
+
+    .url-details {
+        margin-top: 20px;
+    }
+
+    p {
+        margin: 5px 0;
+    }
+
+    a {
+        color: #0066cc;
+        text-decoration: none;
+    }
+
+    .copy-button {
+        background-color: #4caf50;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin-top: 20px;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+
+    .copy-button:hover {
+        background-color: #45a049;
+    }
+    .shorten-another-button {
+        background-color: #3498db;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin-top: 20px;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+
+    .shorten-another-button:hover {
+        background-color: #2980b9;
+    }
+</style>
+<body>
+<section class="url-container">
+
+    {% if payload %}
+        <h1>Your Shortened URL</h1>
+        <div class="url-details">
+            <p><strong>Original URL:</strong> <a href="{{ payload.url }}" target="_blank">{{ payload.url }}</a></p>
+            <p><strong>Provider:</strong> {{ payload.provider }}</p>
+            <p><strong>Shortened URL:</strong> <a href="{{ payload.link }}" target="_blank">{{ payload.link }}</a></p>
+        </div>
+        <button class="copy-button" onclick="copyToClipboard('{{ payload.link }}')">Copy Short URL</button>
+        <a href="/" class="shorten-another-button">Shorten Another URL</a>
+    {% elif error_msg %}
+        <div class="error-message">
+            <p>Oops! Something went wrong. {{ error_msg }}</p>
+            <a href="/" class="shorten-another-button">Try again with another URL</a>
+
+        </div>
+    {% endif %}
+
+</section>
+
+<script>
+    function copyToClipboard(text) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        alert('URLs copied to clipboard!');
+    }
+</script>
+
+</body>
+</html>

@@ -1,72 +1,102 @@
 from dotenv import load_dotenv
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
 from flask import render_template
+from flask import Response
 
-from src.services.bitly import *
-from src.services.tinyurl import *
+
+from src.shorty.utils.url_tools import shorten_url
 
 api = Blueprint('api', __name__, template_folder='templates', static_folder='static')
 load_dotenv()
 
 
 @api.route('/', methods=['GET'])
-def user():
+def main():
     """
-    Route to the optional frontend route of the application.
+    Route to the frontend route of the application.
     """
     return render_template('index.html')
 
 
 @api.route('/shortlinks', methods=['POST'])
 def create_shortlink():
-    url = None
-    provider = None
-    # receiving values through JSON
-    if request.is_json:
-        if request.json.keys() == {'url', 'provider'}:
-            url = request.json['url']
-            provider = request.json['provider']
-    # receiving values through the frontend side of the api
-    elif request.form:
-        if request.form.keys() == {'url', 'provider'}:
-            url = request.form['url']
-            provider = request.form['provider']
+    """
+    Endpoint to create a short link using JSON for API use.
 
-    # checking if any required field is missing
-    if not url or not provider:
-        error_message = 'Both fields are required.'
-        print(f"[Error] {error_message}.")
-        return jsonify({"success": False, "error": error_message})
+    JSON Payload:
+    {
+        "url": "original_url",
+        "provider": "selected_provider"
+    }
 
-    # user choose Bitly as their preferred provider
-    if provider == 'bitly':
-        result = bitly_chosen(url=url)
-        if str(type(result)) == "<class 'flask.wrappers.Response'>":
-            if result.json.get('success') is False:
-                return jsonify(result.json)
+    """
+    # receiving values through API
+    if request.is_json and request.json.keys() == {'url', 'provider'}:
+        url = request.json['url']
+        provider = request.json['provider']
 
-    # user choose TinyURL as their preferred provider
-    elif provider == 'tinyurl':
-        result = tinyurl_chosen(url=url)
-        if type(result) is dict:
-            if result.get('success') is False:
-                return result
+        # checking if any required field is missing
+        if not url or not provider:
+            error_message = 'Both fields:url, provider are required.'
+            return Response(
+                error_message,
+                status=400,
+            )
+
+        result = shorten_url(url=url, provider=provider)
+
+        # Final check for unexpected errors
+        if result == '' or not isinstance(result, str):
+            error_message = "Failed to shorten the URL"
+            return Response(
+                error_message,
+                status=404,
+            )
+
+        return jsonify({"success": True, "url": url, "link": result})
+
     else:
-        # No preference
-        # The system's default preference is tinyurl since it has no limit restrictions
-        result = tinyurl_chosen(url=url)
-        if type(result) is dict:
-            if result.get('success') is False:
-                fallback_result = bitly_chosen(url=url)
-                if type(fallback_result) is dict:
-                    if fallback_result.get('success') is False:
-                        return fallback_result
-                result = fallback_result
+        return Response(
+            "Invalid payload",
+            status=400,
+        )
 
-    # Final check for unexpected errors
-    if result is None or result == '' or type(result) is not str:
-        error_message = f'Shortening Failed, please try again!Error: {result.json.get('error')}'
 
-        return jsonify({"success": False, "error": error_message})
+@api.route('/ui-shortlinks', methods=['POST'])
+def create_shortlink_for_web():
+    """
+    Endpoint to create a short link for the web UI.
 
-    return jsonify({"url": url, "link": result})
+    Form Data:
+    url=original_url
+    provider=selected_provider
+    """
+    if request.form and request.form.keys() == {'url', 'provider'}:
+        url = request.form['url']
+        provider = request.form['provider']
+
+        # checking if any required field is missing
+        if not url or not provider:
+            error_message = 'Both fields:url, provider are required.'
+            return render_template('result_display.html', error_msg=error_message)
+
+        result = shorten_url(url=url, provider=provider)
+
+        # Final check for unexpected errors
+        if result == '' or not isinstance(result, str):
+            error_message = "Failed to shorten the URL"
+            return render_template('result_display.html', error_msg=error_message)
+
+        payload = {"url": url, "link": result, "provider": provider}
+        return render_template('result_display.html', payload=payload)
+
+    else:
+        return render_template('result_display.html', error_msg="Invalid payload")
+
+
+@api.route('/available-providers', methods=['GET'])
+def get_available_provider_info():
+    """
+    Endpoint to display information about available URL shortening providers.
+    """
+    return render_template('providers.html')

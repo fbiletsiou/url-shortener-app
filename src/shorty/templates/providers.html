@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Providers</title>
+</head>
+{% include 'header.html' %}
+{% include 'navbar.html' %}
+<style>
+    .url-container {
+        width: 80%;
+        margin: 1em auto;
+        text-align: center;
+        padding: 20px;
+        background-color: #f5f5f5;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+        color: #333;
+    }
+
+    p {
+        margin: 5px 0;
+    }
+
+    a {
+        color: #0066cc;
+        text-decoration: none;
+    }
+</style>
+<body>
+<section class="url-container">
+    <h1>Available URL Shortening Providers</h1>
+
+    <div class="provider-info">
+        <h2>Bitly</h2>
+        <p>
+            Bitly is a popular URL shortening service known for its features such as link tracking, analytics, and custom short link creation. It is widely used for branding and monitoring link performance.
+        </p>
+        <p>
+            Website: <a href="https://bitly.com" target="_blank">https://bitly.com</a>
+        </p>
+    </div>
+
+    <div class="provider-info">
+        <h2>TinyURL</h2>
+        <p>
+            TinyURL is a straightforward URL shortening service that allows users to create short and shareable links. It is known for its simplicity and ease of use.
+        </p>
+        <p>
+            Website: <a href="https://tinyurl.com" target="_blank">https://tinyurl.com</a>
+        </p>
+    </div>
+</section>
+</body>
+</html>

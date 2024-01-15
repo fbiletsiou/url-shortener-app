@@ -1,8 +1,5 @@
 import pytest
 
-from src.services.bitly import *
-from src.services.tinyurl import *
-
 
 class TestServices:
 
